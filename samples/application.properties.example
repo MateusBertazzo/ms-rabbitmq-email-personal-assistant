@@ -1,0 +1,12 @@
+spring.application.name="name"
+
+server.port="sua porta"
+
+spring.datasource.url="seu banco de dados"
+spring.datasource.driver-class-name=""
+spring.datasource.username="seu usuario"
+spring.datasource.password="sua senha"
+spring.jpa.database-platform=""
+spring.jpa.hibernate.ddl-auto=update
+
+spring.rabbitmq.addresses="seu servidor rabbitmq"
