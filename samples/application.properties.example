@@ -10,3 +10,5 @@ spring.jpa.database-platform=""
 spring.jpa.hibernate.ddl-auto=update
 
 spring.rabbitmq.addresses="seu servidor rabbitmq"
+
+broker.queue.emaail.name="nome da fila"
