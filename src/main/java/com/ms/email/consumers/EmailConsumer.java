@@ -9,6 +9,6 @@ import org.springframework.stereotype.Component;
 public class EmailConsumer {
     @RabbitListener(queues = "${broker.queue.email.name}")
     public void listenEmailQueue(@Payload EmailRecordDto emailRecordDto) {
-        System.out.println(emailRecordDto.emailTo());
+        System.out.println(emailRecordDto);
     }
 }
