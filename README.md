@@ -8,3 +8,5 @@
 - Cloud AMQP
 - MySQL
 - Maven
+- Microsserviço
+- RabbitMQ
