@@ -1,22 +1,24 @@
 package com.ms.email.models.entitys;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
 @Table(name = "emails")
-public class EmailEntity extends BaseEntity {
+public class EmailEntity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    @Column(name = "user_id")
     private Long userId;
 
+    @Column(name = "to_email")
     private String to;
 
     private String subject;
 
     private String text;
-
-    private Boolean sent;
 
     public EmailEntity() {
     }
@@ -26,6 +28,5 @@ public class EmailEntity extends BaseEntity {
         this.to = to;
         this.subject = subject;
         this.text = text;
-        this.sent = false;
     }
 }
