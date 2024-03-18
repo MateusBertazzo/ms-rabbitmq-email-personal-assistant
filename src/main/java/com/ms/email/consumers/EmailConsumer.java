@@ -33,6 +33,8 @@ public class EmailConsumer {
             BeanUtils.copyProperties(emailRecordDto, emailEntity);
 
             emailRepository.save(emailEntity);
+
+            emailService.sendEmail(emailRecordDto);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
