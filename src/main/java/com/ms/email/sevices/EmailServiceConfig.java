@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.stereotype.Service;
 
 @Service
-public class EmailService {
+public class EmailServiceConfig {
 
     @Value("${email.username}")
     private String username;
@@ -26,7 +26,7 @@ public class EmailService {
     private JavaMailSender mailSender;
 
     @Autowired
-    public EmailService(JavaMailSender mailSender) {
+    public EmailServiceConfig(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
 
