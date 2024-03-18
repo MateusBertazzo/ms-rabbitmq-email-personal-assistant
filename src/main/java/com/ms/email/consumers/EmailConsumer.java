@@ -25,18 +25,37 @@ public class EmailConsumer {
     public void listenEmailQueue(@Payload EmailRecordDto emailRecordDto) {
 
         try {
-            if (emailRecordDto == null) {
-                throw new IllegalArgumentException("EmailRecordDto is null");
-            }
+            // validando se email é valido
+            validateEmail(emailRecordDto);
 
-            var emailEntity = new EmailEntity();
-            BeanUtils.copyProperties(emailRecordDto, emailEntity);
+            // covertendo emailRecord para uma entidade
+            EmailEntity emailEntity = convertToEntity(emailRecordDto);
 
-            emailRepository.save(emailEntity);
-
+            // enviando email ao usuario
             emailService.sendEmail(emailRecordDto);
+
+            // salvando email no banco de dados
+            emailRepository.save(emailEntity);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void validateEmail(EmailRecordDto emailRecord) {
+        if (emailRecord == null) {
+            throw new IllegalArgumentException("Dados de email não podem ser nulos");
+        }
+
+        if (!emailRecord.to().contains("@")) {
+            throw new IllegalArgumentException("Email inválido");
+        }
+    }
+
+    private EmailEntity convertToEntity(EmailRecordDto emailRecord) {
+        EmailEntity emailEntity = new EmailEntity();
+
+        BeanUtils.copyProperties(emailRecord, emailEntity);
+
+        return emailEntity;
     }
 }
