@@ -4,6 +4,7 @@ import com.ms.email.dtos.EmailRecordDto;
 import com.ms.email.models.entitys.EmailEntity;
 import com.ms.email.models.repositorys.EmailRepository;
 import com.ms.email.sevices.EmailServiceConfig;
+import com.ms.email.sevices.PilhaEmail;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.BeanUtils;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -16,26 +17,28 @@ public class EmailConsumer {
 
     final EmailRepository emailRepository;
 
-    public EmailConsumer(EmailServiceConfig emailService, EmailRepository emailRepository) {
+    final PilhaEmail pilhaEmail;
+
+    public EmailConsumer(EmailServiceConfig emailService, EmailRepository emailRepository, PilhaEmail pilhaEmail) {
         this.emailService = emailService;
         this.emailRepository = emailRepository;
+        this.pilhaEmail = pilhaEmail;
     }
 
     @RabbitListener(queues = "${broker.queue.email.name}")
     public void listenEmailQueue(@Payload EmailRecordDto emailRecordDto) {
 
         try {
-            // validando se email é valido
+
             validateEmail(emailRecordDto);
 
-            // covertendo emailRecord para uma entidade
-            EmailEntity emailEntity = convertToEntity(emailRecordDto);
+            // adiciono objeto email a pilha de envio de emails
+            pilhaEmail.addEmail(emailRecordDto);
 
-            // enviando email ao usuario
-            emailService.sendEmail(emailRecordDto);
 
-            // salvando email no banco de dados
-            emailRepository.save(emailEntity);
+            // envio email de acordo com a pilha
+            startSendEmails();
+
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -57,5 +60,25 @@ public class EmailConsumer {
         BeanUtils.copyProperties(emailRecord, emailEntity);
 
         return emailEntity;
+    }
+
+    private void startSendEmails() {
+        if (!isExecutingThreadSend()) {
+            new Thread(() -> {
+                while (!pilhaEmail.isEmpty()) {
+                    EmailRecordDto emailForSend = pilhaEmail.removeEmail();
+                    emailService.sendEmail(emailForSend);
+                }
+            }, "Envio de emails").start();
+        }
+    }
+
+    private boolean isExecutingThreadSend() {
+        for (Thread thread : Thread.getAllStackTraces().keySet()) {
+            if (thread.getName().equals("Envio de emails")) {
+                return true;
+            }
+        }
+        return false;
     }
 }
