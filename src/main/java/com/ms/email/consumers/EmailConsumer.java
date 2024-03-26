@@ -63,13 +63,19 @@ public class EmailConsumer {
     }
 
     private void startSendEmails() {
+
+        // só starto uma nova thread se não houver outra do mesmo nome em execução
         if (!isExecutingThreadSend()) {
-            new Thread(() -> {
-                while (!pilhaEmail.isEmpty()) {
-                    EmailRecordDto emailForSend = pilhaEmail.removeEmail();
-                    emailService.sendEmail(emailForSend);
-                }
-            }, "Envio de emails").start();
+            new Thread(() ->
+                {
+                    while (!pilhaEmail.isEmpty())
+                        {
+                            // adiciono email a uma variavel antes de remove-lo da pilha
+                            EmailRecordDto emailForSend = pilhaEmail.removeEmail();
+
+                            emailService.sendEmail(emailForSend);
+                        }
+                }, "Envio de emails").start();
         }
     }
 
